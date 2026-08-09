@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>EU‑BANK · Mobile Banking</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #e8e4de;
+            font-family: 'Inter', sans-serif;
+            padding: 20px 12px 40px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Header - app style */
+        .app-header {
+            background: #0a1a2b;
+            padding: 18px 20px 14px;
+            border-radius: 32px 32px 20px 20px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 8px 24px rgba(10, 26, 43, 0.25);
+        }
+
+        .app-header .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .app-header .brand .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #d4b48c, #c4a07a);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0a1a2b;
+            font-size: 1.1rem;
+            font-weight: 900;
+        }
+
+        .app-header .brand .app-name {
+            color: #f3efe6;
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .app-header .brand .app-name span {
+            color: #d4b48c;
+        }
+
+        .app-header .header-icons {
+            display: flex;
+            gap: 16px;
+            color: #b8cedc;
+            font-size: 1.1rem;
+        }
+
+        .app-header .header-icons i {
+            opacity: 0.7;
+            transition: 0.2s;
+        }
+
+        .app-header .header-icons i:hover {
+            opacity: 1;
+        }
+
+        /* Main card - mobile banking UI */
+        .main-card {
+            background: #f8f6f2;
+            border-radius: 32px;
+            padding: 24px 20px 28px;
+            box-shadow: 0 12px 32px rgba(10, 26, 43, 0.12);
+            border: 1px solid rgba(212, 180, 140, 0.15);
+        }
+
+        .main-card .transfer-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #e8e0d6;
+        }
+
+        .main-card .transfer-label i {
+            color: #d4b48c;
+            font-size: 1.2rem;
+        }
+
+        .main-card .transfer-label h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #0a1a2b;
+        }
+
+        .main-card .transfer-label .badge {
+            margin-left: auto;
+            background: #0a1a2b;
+            color: #f3efe6;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .auto-bank-info {
+            background: linear-gradient(135deg, #ffffff 0%, #f5f0e8 100%);
+            border-radius: 16px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid #e8e0d6;
+            font-size: 0.75rem;
+            color: #4a5f72;
+        }
+
+        .auto-bank-info i {
+            color: #d4b48c;
+            font-size: 1rem;
+        }
+
+        .auto-bank-info strong {
+            color: #0a1a2b;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 500;
+            font-size: 0.7rem;
+            color: #6a7b8a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #e0d8ce;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+            background: #ffffff;
+            transition: 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #b6976e;
+            box-shadow: 0 0 0 4px rgba(182, 151, 110, 0.1);
+        }
+
+        textarea.form-control {
+            min-height: 50px;
+            resize: vertical;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .action-btn {
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border: none;
+            flex: 1;
+            transition: all 0.15s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: #0a1a2b;
+            color: white;
+            box-shadow: 0 4px 12px rgba(10, 26, 43, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: #1a2f44;
+            transform: scale(0.97);
+        }
+
+        .btn-secondary {
+            background: #ece8e0;
+            color: #1a2f44;
+            border: 1px solid #d4c8b8;
+        }
+
+        .btn-secondary:hover {
+            background: #e0dad0;
+        }
+
+        .preview-section {
+            margin-top: 28px;
+            border-top: 1px solid #e8e0d6;
+            padding-top: 24px;
+        }
+
+        .preview-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 16px;
+            color: #6a7b8a;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .preview-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        /* ===== MOBILE SCREEN STYLE - like banking app ===== */
+        .phone-screen {
+            background: #0a1a2b;
+            border-radius: 36px;
+            padding: 16px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 20px 50px -8px rgba(10, 26, 43, 0.35);
+            border: 1px solid #2a4058;
+        }
+
+        .phone-screen .notch {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .phone-screen .notch span {
+            display: block;
+            width: 80px;
+            height: 5px;
+            background: #2a4058;
+            border-radius: 10px;
+        }
+
+        .phone-screen .screen-content {
+            background: #f8f6f2;
+            border-radius: 24px;
+            padding: 20px 18px 18px;
+            min-height: 380px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* app status bar */
+        .screen-content .status-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.6rem;
+            color: #6a7b8a;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e8e0d6;
+        }
+
+        .screen-content .status-bar .time {
+            font-weight: 600;
+        }
+
+        .screen-content .status-bar .icons {
+            display: flex;
+            gap: 6px;
+        }
+
+        /* transaction complete header */
+        .tx-header {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .tx-header .check-circle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, #0a1a2b, #1a2f44);
+            border-radius: 50%;
+            color: #d4b48c;
+            font-size: 1.6rem;
+            margin-bottom: 6px;
+            box-shadow: 0 4px 16px rgba(10, 26, 43, 0.15);
+        }
+
+        .tx-header .tx-status {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0a1a2b;
+        }
+
+        .tx-header .tx-sub {
+            font-size: 0.7rem;
+            color: #6a7b8a;
+            font-weight: 400;
+        }
+
+        /* transaction details - card style */
+        .tx-details {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin: 12px 0 10px;
+            border: 1px solid #e8e0d6;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+
+        .tx-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #f0ece4;
+            font-size: 0.75rem;
+        }
+
+        .tx-row:last-child {
+            border-bottom: none;
+        }
+
+        .tx-row .tx-label {
+            color: #6a7b8a;
+            font-weight: 400;
+        }
+
+        .tx-row .tx-value {
+            color: #0a1a2b;
+            font-weight: 500;
+            text-align: right;
+            word-break: break-word;
+            max-width: 60%;
+        }
+
+        .tx-row .tx-value.amount {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #0a1a2b;
+        }
+
+        .tx-row .tx-value .currency-symbol {
+            color: #d4b48c;
+            margin-right: 2px;
+        }
+
+        .tx-row .tx-value .status-badge {
+            display: inline-block;
+            padding: 1px 12px;
+            background: #0a1a2b;
+            color: #f3efe6;
+            border-radius: 20px;
+            font-size: 0.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .tx-note {
+            background: #f5f0e8;
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin: 8px 0 4px;
+            font-size: 0.7rem;
+            color: #4a5f72;
+            border-left: 3px solid #d4b48c;
+        }
+
+        .tx-note strong {
+            display: block;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6a7b8a;
+            margin-bottom: 2px;
+        }
+
+        /* bottom app bar */
+        .tx-footer {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid #e8e0d6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tx-footer .ref {
+            font-size: 0.55rem;
+            color: #6a7b8a;
+            letter-spacing: 0.5px;
+        }
+
+        .tx-footer .ref span {
+            font-weight: 600;
+            color: #0a1a2b;
+        }
+
+        .tx-footer .bank-label {
+            font-size: 0.5rem;
+            color: #b0a89a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* download button */
+        .download-btn {
+            background: linear-gradient(135deg, #0a1a2b 0%, #1a2f44 100%);
+            color: white;
+            padding: 14px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.15s;
+            box-shadow: 0 6px 16px rgba(10, 26, 43, 0.15);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(10, 26, 43, 0.2);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        .spinner {
+            border: 3px solid #e0d9cf;
+            border-top: 3px solid #0a1a2b;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 0.9s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 28px;
+            padding-top: 12px;
+            border-top: 1px solid #d7cec0;
+            color: #6a7b89;
+            font-size: 0.55rem;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 420px) {
+            .phone-screen {
+                padding: 12px;
+                border-radius: 28px;
+            }
+            .phone-screen .screen-content {
+                padding: 16px 14px 14px;
+                min-height: 320px;
+            }
+            .tx-row {
+                font-size: 0.7rem;
+            }
+            .tx-row .tx-value.amount {
+                font-size: 1rem;
+            }
+            .main-card {
+                padding: 18px 14px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- App Header -->
+    <div class="app-header">
+        <div class="brand">
+            <div class="logo-icon">E</div>
+            <div class="app-name">EU<span>Bank</span></div>
+        </div>
+        <div class="header-icons">
+            <i class="fas fa-bell"></i>
+            <i class="fas fa-user-circle"></i>
+        </div>
+    </div>
+
+    <!-- Main Card -->
+    <div class="main-card">
+        <div class="transfer-label">
+            <i class="fas fa-arrow-right-arrow-left"></i>
+            <h2>Transfer Money</h2>
+            <span class="badge">GBP</span>
+        </div>
+
+        <div class="auto-bank-info">
+            <i class="fas fa-building-columns"></i>
+            From: <strong>EU‑BANK</strong> · London, UK
+        </div>
+
+        <form id="payment-form">
+            <div class="form-group">
+                <label><i class="far fa-user" style="margin-right:6px;"></i> Sender Name</label>
+                <input type="text" id="payer-name" class="form-control" placeholder="James H. Sterling" required>
+            </div>
+            <div class="form-group">
+                <label><i class="far fa-user" style="margin-right:6px;"></i> Recipient Name</label>
+                <input type="text" id="receiver-name" class="form-control" placeholder="Olivia W. Bennett" required>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-hashtag" style="margin-right:6px;"></i> Account / IBAN</label>
+                <input type="text" id="receiver-account" class="form-control" placeholder="GB12 ABCD 1234 5678 90" required>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-university" style="margin-right:6px;"></i> Recipient Bank</label>
+                <input type="text" id="recipient-bank" class="form-control" placeholder="Barclays · HSBC · Lloyds" required>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-pound-sign" style="margin-right:6px;"></i> Amount (GBP)</label>
+                <input type="number" id="amount" class="form-control" placeholder="1250.00" min="1" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label><i class="far fa-calendar-alt" style="margin-right:6px;"></i> Date</label>
+                <input type="date" id="date" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-pen" style="margin-right:6px;"></i> Reference</label>
+                <textarea id="notes" class="form-control" rows="1" placeholder="Optional: Invoice #, purpose"></textarea>
+            </div>
+
+            <div class="action-buttons">
+                <button type="button" id="generate-btn" class="action-btn btn-primary"><i class="fas fa-arrow-right"></i> Pay Now</button>
+                <button type="reset" class="action-btn btn-secondary"><i class="fas fa-undo-alt"></i> Clear</button>
+            </div>
+        </form>
+
+        <div class="preview-section hidden" id="preview-section">
+            <h3 class="preview-title">— Transaction Receipt —</h3>
+            <div class="preview-container">
+                <div class="phone-screen" id="proof-preview">
+                    <div class="notch"><span></span></div>
+                    <div class="screen-content" id="screen-content">
+                        <div class="status-bar">
+                            <span class="time" id="status-time">12:34</span>
+                            <span class="icons">
+                                <i class="fas fa-signal"></i>
+                                <i class="fas fa-wifi"></i>
+                                <i class="fas fa-battery-three-quarters"></i>
+                            </span>
+                        </div>
+                        <div id="proof-content-relative"></div>
+                    </div>
+                </div>
+            </div>
+            <button type="button" id="download-btn" class="download-btn"><i class="fas fa-camera"></i> Save Receipt</button>
+            <div class="action-buttons" style="margin-top: 10px;">
+                <button type="button" id="new-proof-btn" class="action-btn btn-secondary"><i class="fas fa-plus-circle"></i> New Transfer</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading hidden" id="loading">
+        <div class="spinner"></div>
+        <p style="color:#1a2f44;font-weight:300;">generating receipt …</p>
+    </div>
+
+    <footer>
+        <p>© 2026 EU‑BANK · London · Roleplay purpose only</p>
+    </footer>
+</div>
+
+<script>
+    (function() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date').value = today;
+
+        // update status time
+        function updateStatusTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('status-time').textContent = timeStr;
+        }
+        updateStatusTime();
+
+        // ---------- generate proof ----------
+        document.getElementById('generate-btn').addEventListener('click', function() {
+            const required = ['payer-name', 'receiver-name', 'receiver-account', 'recipient-bank', 'amount', 'date'];
+            for (let id of required) {
+                const field = document.getElementById(id);
+                if (!field.value.trim()) {
+                    alert('Please fill in all required fields.');
+                    return;
+                }
+            }
+
+            const data = {
+                payerName: document.getElementById('payer-name').value.trim(),
+                receiverName: document.getElementById('receiver-name').value.trim(),
+                receiverAccount: document.getElementById('receiver-account').value.trim(),
+                recipientBank: document.getElementById('recipient-bank').value.trim(),
+                amount: document.getElementById('amount').value.trim(),
+                date: document.getElementById('date').value,
+                notes: document.getElementById('notes').value.trim()
+            };
+
+            const dateObj = new Date(data.date);
+            const formattedDate = dateObj.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+
+            const ref = 'GB' + Math.floor(Math.random()*9000+1000) + '-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+            const amountNum = parseFloat(data.amount);
+            const formattedAmount = isNaN(amountNum) ? data.amount : amountNum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+            let html = `
+                <div class="tx-header">
+                    <div class="check-circle"><i class="fas fa-check"></i></div>
+                    <div class="tx-status">Payment Complete</div>
+                    <div class="tx-sub">International Transfer · GBP</div>
+                </div>
+
+                <div class="tx-details">
+                    <div class="tx-row">
+                        <span class="tx-label">Amount</span>
+                        <span class="tx-value amount"><span class="currency-symbol">£</span> ${formattedAmount}</span>
+                    </div>
+                    <div class="tx-row">
+                        <span class="tx-label">From</span>
+                        <span class="tx-value">${escapeHtml(data.payerName)}</span>
+                    </div>
+                    <div class="tx-row">
+                        <span class="tx-label">To</span>
+                        <span class="tx-value">${escapeHtml(data.receiverName)}</span>
+                    </div>
+                    <div class="tx-row">
+                        <span class="tx-label">Bank</span>
+                        <span class="tx-value">${escapeHtml(data.recipientBank)}</span>
+                    </div>
+                    <div class="tx-row">
+                        <span class="tx-label">Account</span>
+                        <span class="tx-value">${escapeHtml(data.receiverAccount)}</span>
+                    </div>
+                    <div class="tx-row">
+                        <span class="tx-label">Date</span>
+                        <span class="tx-value">${formattedDate}</span>
+                    </div>
+                    <div class="tx-row">
+                        <span class="tx-label">Time</span>
+                        <span class="tx-value">${timeStr}</span>
+                    </div>
+                    <div class="tx-row">
+                        <span class="tx-label">Status</span>
+                        <span class="tx-value"><span class="status-badge">Completed</span></span>
+                    </div>
+                </div>
+            `;
+
+            if (data.notes) {
+                html += `<div class="tx-note"><strong>Reference</strong>${escapeHtml(data.notes)}</div>`;
+            }
+
+            html += `
+                <div class="tx-footer">
+                    <span class="ref">Ref: <span>${ref}</span></span>
+                    <span class="bank-label"><i class="fas fa-university"></i> EU-BANK</span>
+                </div>
+            `;
+
+            document.getElementById('proof-content-relative').innerHTML = html;
+            document.getElementById('preview-section').classList.remove('hidden');
+            document.getElementById('preview-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        // ---------- download PNG ----------
+        document.getElementById('download-btn').addEventListener('click', function() {
+            const card = document.getElementById('proof-preview');
+            if (!card) { alert('Make a transfer first.'); return; }
+
+            const loading = document.getElementById('loading');
+            loading.classList.remove('hidden');
+
+            const cloneCard = card.cloneNode(true);
+            cloneCard.style.position = 'fixed';
+            cloneCard.style.left = '-9999px';
+            cloneCard.style.top = '-9999px';
+            cloneCard.style.width = '400px';
+            cloneCard.style.maxWidth = '400px';
+            cloneCard.style.padding = '16px';
+            cloneCard.style.borderRadius = '36px';
+            cloneCard.style.boxSizing = 'border-box';
+            cloneCard.style.background = '#0a1a2b';
+            cloneCard.style.fontFamily = "'Inter', sans-serif";
+
+            // ensure inner styles are preserved
+            const style = document.createElement('style');
+            style.textContent = `
+                .notch { display: flex !important; justify-content: center !important; margin-bottom: 12px !important; }
+                .notch span { display: block !important; width: 80px !important; height: 5px !important; background: #2a4058 !important; border-radius: 10px !important; }
+                .screen-content { background: #f8f6f2 !important; border-radius: 24px !important; padding: 20px 18px 18px !important; min-height: 360px !important; }
+                .status-bar { display: flex !important; justify-content: space-between !important; font-size: 0.6rem !important; color: #6a7b8a !important; margin-bottom: 14px !important; padding-bottom: 10px !important; border-bottom: 1px solid #e8e0d6 !important; }
+                .tx-header { text-align: center !important; margin-bottom: 16px !important; }
+                .check-circle { display: inline-flex !important; align-items: center !important; justify-content: center !important; width: 52px !important; height: 52px !important; background: linear-gradient(135deg, #0a1a2b, #1a2f44) !important; border-radius: 50% !important; color: #d4b48c !important; font-size: 1.6rem !important; margin-bottom: 6px !important; box-shadow: 0 4px 16px rgba(10, 26, 43, 0.15) !important; }
+                .tx-status { font-size: 1rem !important; font-weight: 700 !important; color: #0a1a2b !important; }
+                .tx-sub { font-size: 0.7rem !important; color: #6a7b8a !important; font-weight: 400 !important; }
+                .tx-details { background: #ffffff !important; border-radius: 16px !important; padding: 14px 16px !important; margin: 12px 0 10px !important; border: 1px solid #e8e0d6 !important; }
+                .tx-row { display: flex !important; justify-content: space-between !important; padding: 6px 0 !important; border-bottom: 1px solid #f0ece4 !important; font-size: 0.75rem !important; }
+                .tx-row:last-child { border-bottom: none !important; }
+                .tx-label { color: #6a7b8a !important; font-weight: 400 !important; }
+                .tx-value { color: #0a1a2b !important; font-weight: 500 !important; text-align: right !important; word-break: break-word !important; max-width: 60% !important; }
+                .tx-value.amount { font-size: 1.1rem !important; font-weight: 700 !important; color: #0a1a2b !important; }
+                .currency-symbol { color: #d4b48c !important; margin-right: 2px !important; }
+                .status-badge { display: inline-block !important; padding: 1px 12px !important; background: #0a1a2b !important; color: #f3efe6 !important; border-radius: 20px !important; font-size: 0.5rem !important; font-weight: 600 !important; letter-spacing: 0.5px !important; text-transform: uppercase !important; }
+                .tx-note { background: #f5f0e8 !important; border-radius: 12px !important; padding: 10px 14px !important; margin: 8px 0 4px !important; font-size: 0.7rem !important; color: #4a5f72 !important; border-left: 3px solid #d4b48c !important; }
+                .tx-note strong { display: block !important; font-size: 0.6rem !important; text-transform: uppercase !important; letter-spacing: 0.5px !important; color: #6a7b8a !important; margin-bottom: 2px !important; }
+                .tx-footer { margin-top: 14px !important; padding-top: 12px !important; border-top: 1px solid #e8e0d6 !important; display: flex !important; justify-content: space-between !important; align-items: center !important; }
+                .ref { font-size: 0.55rem !important; color: #6a7b8a !important; letter-spacing: 0.5px !important; }
+                .ref span { font-weight: 600 !important; color: #0a1a2b !important; }
+                .bank-label { font-size: 0.5rem !important; color: #b0a89a !important; text-transform: uppercase !important; letter-spacing: 0.5px !important; }
+            `;
+            cloneCard.appendChild(style);
+
+            document.body.appendChild(cloneCard);
+
+            setTimeout(async () => {
+                try {
+                    const canvas = await html2canvas(cloneCard, {
+                        scale: 2.8,
+                        backgroundColor: '#0a1a2b',
+                        useCORS: true,
+                        logging: false,
+                        width: 400,
+                        height: cloneCard.scrollHeight
+                    });
+
+                    const link = document.createElement('a');
+                    link.download = `EU-BANK_receipt_${Date.now()}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+
+                    document.body.removeChild(cloneCard);
+                    loading.classList.add('hidden');
+                } catch (err) {
+                    console.error(err);
+                    document.body.removeChild(cloneCard);
+                    loading.classList.add('hidden');
+                    alert('Download failed. Please try again.');
+                }
+            }, 300);
+        });
+
+        // ---------- new slip ----------
+        document.getElementById('new-proof-btn').addEventListener('click', function() {
+            document.getElementById('preview-section').classList.add('hidden');
+            document.getElementById('payment-form').reset();
+            document.getElementById('date').value = today;
+            updateStatusTime();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
+        }
+
+        window.addEventListener('load', function() {
+            document.getElementById('date').value = today;
+            updateStatusTime();
+        });
+    })();
+</script>
+</body>
+</html>
