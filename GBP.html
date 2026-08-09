@@ -631,10 +631,14 @@
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('date').value = today;
 
-        // update status time
+        // update status time with AM/PM
         function updateStatusTime() {
             const now = new Date();
-            const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+            const timeStr = now.toLocaleTimeString('en-GB', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: true 
+            });
             document.getElementById('status-time').textContent = timeStr;
         }
         updateStatusTime();
@@ -664,8 +668,14 @@
             const formattedDate = dateObj.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
             const ref = 'GB' + Math.floor(Math.random()*9000+1000) + '-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            
+            // Get current time with AM/PM
             const now = new Date();
-            const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+            const timeStr = now.toLocaleTimeString('en-GB', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: true 
+            });
 
             const amountNum = parseFloat(data.amount);
             const formattedAmount = isNaN(amountNum) ? data.amount : amountNum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -827,4 +837,4 @@
     })();
 </script>
 </body>
-</html>
+    </html>
