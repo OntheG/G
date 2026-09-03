@@ -1,16 +1,622 @@
-<!doctype html>
-<html lang="<!-- figma:lang -->">
-  <head>
-    <!-- figma:head-start -->
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><!-- figma:title --></title>
-    <!-- figma:head-end -->
-  </head>
-  <body>
-    <!-- figma:body-start -->
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-    <!-- figma:body-end -->
-  </body>
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>God Save The King · GSTK</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Times New Roman', 'Palatino Linotype', 'Book Antiqua', serif;
+    }
+
+    body {
+      background-color: #461e29;
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 1.5rem 1.5rem 3rem;
+    }
+
+    #fadeOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #461e29;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      pointer-events: none;
+      transition: opacity 1.2s ease;
+      opacity: 1;
+    }
+    #fadeOverlay.fade-out { opacity: 0; }
+    #fadeOverlay .logo-big {
+      font-size: 5.5rem;
+      letter-spacing: 0.3rem;
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 0 12px rgba(255, 215, 0, 0.2);
+      border: 3px solid rgba(255, 255, 255, 0.15);
+      padding: 1.2rem 3rem;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.02);
+      backdrop-filter: blur(2px);
+      font-family: 'Times New Roman', serif;
+    }
+
+    #mainContent {
+      width: 100%;
+      max-width: 1280px;
+      opacity: 0;
+      transition: opacity 1s ease;
+      transition-delay: 0.2s;
+    }
+    #mainContent.visible { opacity: 1; }
+
+    .gov-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+      padding-bottom: 0.75rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .gov-header h1 {
+      font-size: 2.2rem;
+      font-weight: 400;
+      letter-spacing: 0.1rem;
+      text-transform: uppercase;
+    }
+    .gov-header .logo-strap {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .logo-gstk {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: 0.4rem;
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      padding: 0.1rem 1.2rem;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .subhead {
+      font-size: 0.9rem;
+      opacity: 0.7;
+      letter-spacing: 0.1rem;
+      margin-top: 0.2rem;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin: 2rem 0 2.5rem;
+    }
+    @media (max-width: 700px) {
+      .card-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+    }
+
+    .gov-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 1.8rem 1.8rem 2rem;
+      transition: 0.2s;
+      backdrop-filter: blur(2px);
+      cursor: default;
+    }
+    .gov-card:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .card-title {
+      font-size: 1.6rem;
+      font-weight: 400;
+      letter-spacing: 0.05rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 0.5rem;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-title:hover { opacity: 0.8; }
+    .card-title .arrow {
+      font-size: 1.2rem;
+      opacity: 0.4;
+      transition: 0.2s;
+    }
+    .card-title.open .arrow { transform: rotate(180deg); }
+
+    .card-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, opacity 0.3s ease;
+      opacity: 0;
+    }
+    .card-body.open {
+      max-height: 600px;
+      opacity: 1;
+    }
+
+    .id-options, .bank-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      margin-top: 0.8rem;
+    }
+    .id-options button, .bank-options button, .bank-options a {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 0.6rem 1rem;
+      text-align: left;
+      font-size: 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.15s;
+      font-family: 'Times New Roman', serif;
+      letter-spacing: 0.02rem;
+      background: rgba(255, 255, 255, 0.02);
+      text-decoration: none;
+      display: block;
+    }
+    .id-options button:hover, .bank-options button:hover, .bank-options a:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .reg-form {
+      margin-top: 0.8rem;
+      padding: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      display: none;
+    }
+    .reg-form.active { display: block; }
+    .reg-form label {
+      display: block;
+      margin: 0.5rem 0 0.2rem;
+      font-size: 0.85rem;
+      opacity: 0.7;
+      letter-spacing: 0.03rem;
+    }
+    .reg-form input {
+      width: 100%;
+      padding: 0.5rem 0.7rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+      color: white;
+      font-family: 'Times New Roman', serif;
+      font-size: 0.95rem;
+    }
+    .reg-form input:focus {
+      outline: none;
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+    .reg-form .save-btn {
+      margin-top: 0.8rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: white;
+      padding: 0.5rem 1.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Times New Roman', serif;
+      font-size: 0.95rem;
+      transition: 0.15s;
+    }
+    .reg-form .save-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .reg-form .save-msg {
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      opacity: 0.6;
+    }
+
+    .map-section {
+      margin-top: 1.2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 2rem;
+    }
+    .map-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem 3rem;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .map-wrapper {
+      flex: 1 1 500px;
+      min-width: 350px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: #0d1f2d;
+      position: relative;
+      height: 480px;
+    }
+    .map-wrapper #map {
+      width: 100%;
+      height: 100%;
+    }
+    .map-wrapper .map-label {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.6);
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      letter-spacing: 0.08rem;
+      opacity: 0.5;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .residence-list {
+      flex: 1 1 340px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 16px;
+      padding: 1.2rem 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      max-height: 480px;
+      overflow-y: auto;
+    }
+    .residence-list::-webkit-scrollbar {
+      width: 4px;
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .residence-list::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 6px;
+    }
+
+    .residence-item {
+      padding: 0.4rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 0.9rem;
+      line-height: 1.4;
+      display: flex;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+    .residence-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      padding-left: 0.3rem;
+    }
+    .residence-item.active {
+      background: rgba(255, 215, 0, 0.1);
+      border-left: 2px solid #ffd700;
+      padding-left: 0.3rem;
+    }
+    .residence-item .marker-icon {
+      color: white;
+      opacity: 0.4;
+      font-size: 0.9rem;
+      margin-right: 0.2rem;
+    }
+    .residence-item strong {
+      font-weight: 600;
+      letter-spacing: 0.02rem;
+    }
+    .residence-item .addr {
+      opacity: 0.65;
+      font-size: 0.82rem;
+      display: block;
+      margin-top: 0.05rem;
+    }
+    .home-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.7rem;
+      font-size: 0.8rem;
+      opacity: 0.4;
+      letter-spacing: 0.05rem;
+    }
+
+    .footer-note {
+      margin-top: 2.5rem;
+      font-size: 0.8rem;
+      opacity: 0.25;
+      letter-spacing: 0.1rem;
+      text-align: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 1.5rem;
+      width: 100%;
+    }
+
+    .custom-marker {
+      background: white;
+      border: 2px solid #461e29;
+      border-radius: 50% 50% 50% 0;
+      width: 20px;
+      height: 20px;
+      transform: rotate(-45deg);
+      box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+    }
+    .custom-marker::after {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 8px;
+      height: 8px;
+      background: #461e29;
+      border-radius: 50%;
+      transform: rotate(45deg);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="fadeOverlay">
+    <div class="logo-big">GSTK</div>
+  </div>
+
+  <div id="mainContent">
+
+    <header class="gov-header">
+      <div>
+        <h1>God Save The King</h1>
+        <div class="subhead">His Majesty's Government · British Isles</div>
+      </div>
+      <div class="logo-strap">
+        <span class="logo-gstk">GSTK</span>
+      </div>
+    </header>
+
+    <section style="margin-bottom: 1.8rem; border-left: 2px solid rgba(255,255,255,0.1); padding-left: 1.2rem;">
+      <p style="font-size: 1.2rem; font-weight: 300; letter-spacing: 0.02rem; max-width: 780px;">
+        <span style="font-weight: 500;">GSTK</span> — the Crown's registry for
+        <span style="opacity: 0.8;">estates, subjects, and sovereign records.</span>
+        Established by royal charter, maintaining the rolls of the realm.
+      </p>
+    </section>
+
+    <div class="card-grid">
+
+      <div class="gov-card">
+        <div class="card-title" onclick="toggleCard(this)">
+          ID Card
+          <span class="arrow">▼</span>
+        </div>
+        <div class="card-body">
+          <p style="opacity:0.6;font-size:0.9rem;margin-bottom:0.8rem;">National Identity · Crown Service</p>
+          <div class="id-options">
+            <button onclick="toggleForm('idRegForm')">Registration</button>
+            <button onclick="alert('Check ID · Verify Crown Identity')">Check ID</button>
+          </div>
+          <div class="reg-form" id="idRegForm">
+            <label>Full Name</label>
+            <input type="text" id="fullName" placeholder="e.g. Arthur J. Pendragon" />
+            <label>Address</label>
+            <input type="text" id="address" placeholder="e.g. 10 Downing Street, London" />
+            <label>Date of Birth</label>
+            <input type="text" id="dob" placeholder="DD/MM/YYYY" />
+            <label>Place of Birth</label>
+            <input type="text" id="pob" placeholder="e.g. London, England" />
+            <button class="save-btn" onclick="saveToGDrive()">Save to GDrive</button>
+            <div class="save-msg" id="saveMsg"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gov-card">
+        <div class="card-title" onclick="toggleCard(this)">
+          GBP Bank
+          <span class="arrow">▼</span>
+        </div>
+        <div class="card-body">
+          <p style="opacity:0.6;font-size:0.9rem;margin-bottom:0.8rem;">Bank of England · Sterling</p>
+          <div class="bank-options">
+            <button onclick="alert('Registration Card · Crown Banking Service')">Registration Card</button>
+            <a href="GBP.html">Transaction</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <section class="map-section">
+      <div style="display:flex;align-items:baseline;gap:1.5rem;margin-bottom:1rem;flex-wrap:wrap;">
+        <span style="font-size:1.4rem;font-weight:300;letter-spacing:0.05rem;">British Isles · Crown Estates</span>
+        <span style="opacity:0.25;font-size:0.75rem;letter-spacing:0.04rem;">click residence to zoom to location</span>
+      </div>
+
+      <div class="map-container">
+        <div class="map-wrapper" id="mapWrapper">
+          <div id="map"></div>
+          <div class="map-label">CROWN ESTATES · BRITISH ISLES</div>
+        </div>
+
+        <div class="residence-list" id="residenceList">
+          <div class="home-indicator">Crown residences · click to locate</div>
+          <div class="residence-item" data-id="16" onclick="zoomToLocation(16)"><span class="marker-icon">•</span><div><strong>Justice Goode</strong><span class="addr">New Eidyn, St James Quarter, Edinburgh, EH1 3SS</span></div></div>
+          <div class="residence-item" data-id="14" onclick="zoomToLocation(14)"><span class="marker-icon">•</span><div><strong>Tanner A. Clarendon</strong><span class="addr">127 Westminster Ave, Sheffield S10 4ER</span></div></div>
+          <div class="residence-item" data-id="9" onclick="zoomToLocation(9)"><span class="marker-icon">•</span><div><strong>Frederick L. Rutherford</strong><span class="addr">Redington Road, Hampstead, London, NW3</span></div></div>
+          <div class="residence-item" data-id="0" onclick="zoomToLocation(0)"><span class="marker-icon">•</span><div><strong>The Kafka Family Estate</strong><span class="addr">Kenwood House, 3 Hampstead Lane, Hampstead, London, NW3 7JR</span></div></div>
+          <div class="residence-item" data-id="5" onclick="zoomToLocation(5)"><span class="marker-icon">•</span><div><strong>Catherine Sinclair</strong><span class="addr">6A Aubrey Road, Holland Park, London</span></div></div>
+          <div class="residence-item" data-id="6" onclick="zoomToLocation(6)"><span class="marker-icon">•</span><div><strong>Al P. Winterbourne</strong><span class="addr">45 Bedford Place, Bloomsbury, London, WC1B 5JH</span></div></div>
+          <div class="residence-item" data-id="10" onclick="zoomToLocation(10)"><span class="marker-icon">•</span><div><strong>Laluna H. Satwika</strong><span class="addr">The Armitage, 218 Great Portland Street, London, W1W 5QP</span></div></div>
+          <div class="residence-item" data-id="8" onclick="zoomToLocation(8)"><span class="marker-icon">•</span><div><strong>Ethan Kang</strong><span class="addr">1 Bollinder Place, London, EC1V 2AG</span></div></div>
+          <div class="residence-item" data-id="2" onclick="zoomToLocation(2)"><span class="marker-icon">•</span><div><strong>Bernadette M. Hsu</strong><span class="addr">Knightsbridge, London, SW1X 9PX</span></div></div>
+          <div class="residence-item" data-id="12" onclick="zoomToLocation(12)"><span class="marker-icon">•</span><div><strong>Noah R. Wilson</strong><span class="addr">24 Eaton Square, Belgravia, London, SW1W 9BQ</span></div></div>
+          <div class="residence-item" data-id="1" onclick="zoomToLocation(1)"><span class="marker-icon">•</span><div><strong>Alexandre A. Arenberg</strong><span class="addr">27 Boundary Road, London, E17 8NQ</span></div></div>
+          <div class="residence-item" data-id="7" onclick="zoomToLocation(7)"><span class="marker-icon">•</span><div><strong>Cordelia Marygold</strong><span class="addr">Colour House, 7 Bell Yard Mews, London, SE1 3UA</span></div></div>
+          <div class="residence-item" data-id="15" onclick="zoomToLocation(15)"><span class="marker-icon">•</span><div><strong>Wes V. Chrestien</strong><span class="addr">130 Elmbridge, London, AP6 5KP</span></div></div>
+          <div class="residence-item" data-id="13" onclick="zoomToLocation(13)"><span class="marker-icon">•</span><div><strong>Saoirse G. Hawthorre</strong><span class="addr">Drift Road, Windsor, Berkshire, SL4 4RR</span></div></div>
+          <div class="residence-item" data-id="11" onclick="zoomToLocation(11)"><span class="marker-icon">•</span><div><strong>Lareina T. Clarendon</strong><span class="addr">1A Mayfair Ave, Nailsea, Bristol BS48 2LR, UK</span></div></div>
+          <div class="residence-item" data-id="3" onclick="zoomToLocation(3)"><span class="marker-icon">•</span><div><strong>Blaise A. E. Seymour</strong><span class="addr">Batstone Close, Bath, Somerset, BA1 6PE</span></div></div>
+          <div class="residence-item" data-id="4" onclick="zoomToLocation(4)"><span class="marker-icon">•</span><div><strong>Blake A. l. Seymour</strong><span class="addr">Claremont Walk, Bath, Somerset, BA1 6HB</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer-note">
+      GOD SAVE THE KING · CROWN COPYRIGHT 2026 · ALL RIGHTS RESERVED
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // FADE LOGO
+    (function() {
+      const overlay = document.getElementById('fadeOverlay');
+      const main = document.getElementById('mainContent');
+      setTimeout(() => {
+        overlay.classList.add('fade-out');
+        main.classList.add('visible');
+        setTimeout(() => { overlay.style.display = 'none'; }, 1400);
+      }, 3200);
+    })();
+
+    // TOGGLE CARD
+    function toggleCard(el) {
+      const body = el.nextElementSibling;
+      el.classList.toggle('open');
+      body.classList.toggle('open');
+    }
+
+    function toggleForm(formId) {
+      const form = document.getElementById(formId);
+      form.classList.toggle('active');
+      if (form.classList.contains('active')) {
+        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function saveToGDrive() {
+      const fullName = document.getElementById('fullName').value;
+      const address = document.getElementById('address').value;
+      const dob = document.getElementById('dob').value;
+      const pob = document.getElementById('pob').value;
+
+      if (!fullName || !address || !dob || !pob) {
+        document.getElementById('saveMsg').textContent = 'Please fill in all fields.';
+        document.getElementById('saveMsg').style.color = '#ff9999';
+        return;
+      }
+
+      const data = { fullName, address, dob, pob, timestamp: new Date().toISOString() };
+      console.log('Saving to GDrive:', data);
+
+      const gdriveLink = 'https://drive.google.com/drive/folders/1GSTK_Crown_Registry';
+      document.getElementById('saveMsg').innerHTML =
+        'Data saved successfully! <a href="' + gdriveLink + '" target="_blank" style="color:white;text-decoration:underline;">View in GDrive</a>';
+      document.getElementById('saveMsg').style.color = '#90ee90';
+
+      document.getElementById('fullName').value = '';
+      document.getElementById('address').value = '';
+      document.getElementById('dob').value = '';
+      document.getElementById('pob').value = '';
+    }
+
+    // DATA KOORDINAT LOKASI
+    const locationData = {
+      0: { lat: 51.5718, lon: -0.1744, name: 'The Kafka Family Estate' },
+      1: { lat: 51.5770, lon: -0.0140, name: 'Alexandre A. Arenberg' },
+      2: { lat: 51.5015, lon: -0.1600, name: 'Bernadette M. Hsu' },
+      3: { lat: 51.3810, lon: -2.3590, name: 'Blaise A. E. Seymour' },
+      4: { lat: 51.3830, lon: -2.3570, name: 'Blake A. l. Seymour' },
+      5: { lat: 51.5025, lon: -0.2050, name: 'Catherine Sinclair' },
+      6: { lat: 51.5190, lon: -0.1260, name: 'Al P. Winterbourne' },
+      7: { lat: 51.5060, lon: -0.0850, name: 'Cordelia Marygold' },
+      8: { lat: 51.5250, lon: -0.0990, name: 'Ethan Kang' },
+      9: { lat: 51.5580, lon: -0.1760, name: 'Frederick L. Rutherford' },
+      10: { lat: 51.5200, lon: -0.1450, name: 'Laluna H. Satwika' },
+      11: { lat: 51.4420, lon: -2.7590, name: 'Lareina T. Clarendon' },
+      12: { lat: 51.4980, lon: -0.1550, name: 'Noah R. Wilson' },
+      13: { lat: 51.4790, lon: -0.6300, name: 'Saoirse G. Hawthorre' },
+      14: { lat: 53.3811, lon: -1.4700, name: 'Tanner A. Clarendon' },
+      15: { lat: 51.5500, lon: 0.0500, name: 'Wes V. Chrestien' },
+      16: { lat: 55.9533, lon: -3.1883, name: 'Justice Goode' }
+    };
+
+    // ====== INISIALISASI MAP ======
+    // Default: tampilkan seluruh Inggris
+    const map = L.map('map').setView([54.0, -3.0], 6);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+      maxZoom: 19
+    }).addTo(map);
+
+    const markers = {};
+
+    Object.keys(locationData).forEach(id => {
+      const data = locationData[id];
+      
+      const icon = L.divIcon({
+        className: 'custom-marker',
+        iconSize: [20, 20],
+        iconAnchor: [10, 20],
+        popupAnchor: [0, -20]
+      });
+
+      const marker = L.marker([data.lat, data.lon], { icon: icon })
+        .bindPopup(`<b>${data.name}</b>`)
+        .addTo(map);
+      
+      markers[id] = marker;
+    });
+
+    // ZOOM KE LOKASI - PASTIKAN TEPAT DI TENGAH
+    function zoomToLocation(id) {
+      const data = locationData[id];
+      if (!data) return;
+
+      // Highlight di list
+      document.querySelectorAll('.residence-item').forEach(el => el.classList.remove('active'));
+      const item = document.querySelector(`.residence-item[data-id="${id}"]`);
+      if (item) item.classList.add('active');
+
+      // ====== CARA BARU: setView + panTo ======
+      // Pertama setView ke koordinat dengan zoom
+      map.setView([data.lat, data.lon], 16, {
+        animate: true,
+        duration: 0.8
+      });
+
+      // Setelah animasi selesai, pan ke tengah (memastikan posisi tepat)
+      setTimeout(() => {
+        map.panTo([data.lat, data.lon]);
+      }, 850);
+
+      // Buka popup marker
+      if (markers[id]) {
+        setTimeout(() => {
+          markers[id].openPopup();
+        }, 400);
+      }
+
+      // Scroll ke map
+      document.getElementById('mapWrapper').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // ====== TIDAK ADA DEFAULT ZOOM KE ALAMAT ======
+  </script>
+</body>
 </html>
