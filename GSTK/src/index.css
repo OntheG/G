@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --font-display: 'EB Garamond', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --color-gstk-950: #1a0b10;
+  --color-gstk-900: #2c1019;
+  --color-gstk-800: #461e29;
+  --color-gstk-700: #5e2535;
+  --color-gstk-600: #782d41;
+  --color-gstk-500: #96384f;
+  --color-gstk-400: #b85470;
+  --color-gstk-300: #d4849a;
+  --color-gstk-200: #ebbdca;
+  --color-gstk-100: #f7e4ea;
+  --color-gstk-50: #fdf2f5;
+}
+
+html, body, #root {
+  height: 100%;
+  font-family: var(--font-body);
+  background: #f5f5f4;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+*:hover {
+  scrollbar-color: #461e29 transparent;
+}
+
+.font-display { font-family: var(--font-display); }
+.font-mono { font-family: var(--font-mono); }
