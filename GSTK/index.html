@@ -40,19 +40,18 @@
       opacity: 1;
     }
     #fadeOverlay.fade-out { opacity: 0; }
-    #fadeOverlay .logo-big {
-      font-size: 4rem;
-      letter-spacing: 0.3rem;
-      font-weight: 700;
-      color: white;
-      text-shadow: 0 0 12px rgba(255, 215, 0, 0.2);
-      border: 3px solid rgba(255, 255, 255, 0.15);
-      padding: 1rem 2.5rem;
-      border-radius: 4px;
-      background: rgba(255, 255, 255, 0.02);
-      backdrop-filter: blur(2px);
-      font-family: 'Times New Roman', serif;
-    }
+#fadeOverlay .logo-big {
+  /* Hapus semua style sebelumnya, ganti dengan: */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#fadeOverlay .logo-big img {
+  height: 120px;
+  width: auto;
+  display: block;
+}
 
     #mainContent {
       width: 100%;
@@ -69,7 +68,7 @@
       align-items: center;
       justify-content: center;
       border-bottom: 2px solid rgba(255, 255, 255, 0.15);
-      padding: 0.5rem 0 0.6rem;
+      padding: 0rem 0 0.6rem;
       margin-bottom: 1.2rem;
       flex-wrap: wrap;
       gap: 0.3rem;
@@ -344,16 +343,19 @@
 </head>
 <body>
 
-  <div id="fadeOverlay">
-    <div class="logo-big">GSTK</div>
+<!-- Ganti ini di bagian HTML overlay -->
+<div id="fadeOverlay">
+  <div class="logo-big">
+    <img src="https://ontheg.github.io/G/GSTK/Logo.png" alt="GSTK" />
   </div>
-
+</div>
+  
   <div id="mainContent">
 
     <!-- HEADER: Logo di tengah, tanpa border putih -->
     <header class="gov-header">
       <div class="header-logo">
-        <img src="https://ontheg.github.io/GSTK/Logo.png" alt="GSTK Logo" />
+        <img src="https://ontheg.github.io/G/GSTK/Logo.png" alt="GSTK Logo" />
         <span class="logo-text">God Save The King</span>
       </div>
     </header>
@@ -369,22 +371,20 @@
     <!-- MAP SECTION -->
     <section class="map-section">
       <div style="display:flex;align-items:baseline;gap:1rem;margin-bottom:0.6rem;flex-wrap:wrap;">
-        <span style="font-size:1rem;font-weight:300;letter-spacing:0.04rem;">British Isles · Crown Estates</span>
-        <span style="opacity:0.2;font-size:0.6rem;letter-spacing:0.03rem;">click residence to locate</span>
+        <span style="font-size:1rem;font-weight:300;letter-spacing:0.04rem;">British Isles</span>
       </div>
 
       <div class="map-container">
         <div class="map-wrapper" id="mapWrapper">
           <div id="map"></div>
-          <div class="map-label">CROWN ESTATES</div>
         </div>
 
         <div class="residence-list" id="residenceList">
-          <div class="home-indicator">Crown residences</div>
+          <div class="home-indicator">GSTK residences</div>
           <div class="residence-item" data-id="16" onclick="zoomToLocation(16)"><span class="marker-icon">•</span><div><strong>Justice Goode</strong><span class="addr">New Eidyn, Edinburgh, EH1 3SS</span></div></div>
           <div class="residence-item" data-id="14" onclick="zoomToLocation(14)"><span class="marker-icon">•</span><div><strong>Tanner A. Clarendon</strong><span class="addr">127 Westminster Ave, Sheffield S10 4ER</span></div></div>
           <div class="residence-item" data-id="9" onclick="zoomToLocation(9)"><span class="marker-icon">•</span><div><strong>Frederick L. Rutherford</strong><span class="addr">Redington Road, Hampstead, London</span></div></div>
-          <div class="residence-item" data-id="0" onclick="zoomToLocation(0)"><span class="marker-icon">•</span><div><strong>The Kafka Family Estate</strong><span class="addr">Kenwood House, Hampstead, London</span></div></div>
+          <div class="residence-item" data-id="0" onclick="zoomToLocation(0)"><span class="marker-icon">•</span><div><strong>Gathur D. Kafka</strong><span class="addr">The Kafka Family Estate, 3 Hampstead Lane, London</span></div></div>
           <div class="residence-item" data-id="5" onclick="zoomToLocation(5)"><span class="marker-icon">•</span><div><strong>Catherine Sinclair</strong><span class="addr">6A Aubrey Road, Holland Park, London</span></div></div>
           <div class="residence-item" data-id="6" onclick="zoomToLocation(6)"><span class="marker-icon">•</span><div><strong>Al P. Winterbourne</strong><span class="addr">45 Bedford Place, Bloomsbury, London</span></div></div>
           <div class="residence-item" data-id="10" onclick="zoomToLocation(10)"><span class="marker-icon">•</span><div><strong>Laluna H. Satwika</strong><span class="addr">The Armitage, 218 Great Portland St, London</span></div></div>
