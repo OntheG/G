@@ -1,500 +1,373 @@
 <!DOCTYPE html>
 <html lang="en-GB">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-  <title>God Save The King · GSTK</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Times New Roman', 'Palatino Linotype', 'Book Antiqua', serif;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+<title>God Save The King · GSTK</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=EB+Garamond:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --maroon-950:#2a121a;
+    --maroon-900:#461e29;
+    --maroon-800:#5a2734;
+    --maroon-700:#6f313f;
+    --white:#ffffff;
+    --w-90: rgba(255,255,255,.90);
+    --w-70: rgba(255,255,255,.70);
+    --w-50: rgba(255,255,255,.50);
+    --w-30: rgba(255,255,255,.30);
+    --w-15: rgba(255,255,255,.15);
+    --w-08: rgba(255,255,255,.08);
+  }
 
-    body {
-      background-color: #461e29;
-      color: white;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 0.8rem 0.8rem 1.5rem;
-    }
+  *{ margin:0; padding:0; box-sizing:border-box; }
 
-    #fadeOverlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: #461e29;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      pointer-events: none;
-      transition: opacity 1.2s ease;
-      opacity: 1;
-    }
-    #fadeOverlay.fade-out { opacity: 0; }
-#fadeOverlay .logo-big {
-  /* Hapus semua style sebelumnya, ganti dengan: */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+  body{
+    background:var(--maroon-900);
+    color:var(--white);
+    font-family:'EB Garamond', 'Times New Roman', serif;
+    min-height:100vh;
+  }
 
-#fadeOverlay .logo-big img {
-  height: 120px;
-  width: auto;
-  display: block;
-}
+  /* ── overlay ─────────────────────────────── */
+  #fadeOverlay{
+    position:fixed; inset:0;
+    background:var(--maroon-900);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    z-index:9999; pointer-events:none;
+    transition:opacity 1s ease;
+  }
+  #fadeOverlay.fade-out{ opacity:0; }
+  #fadeOverlay .ring{
+    width:120px; height:120px;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:1.1rem;
+  }
+  #fadeOverlay img{ height:100px; width:auto; }
+  #fadeOverlay .rule{
+    width:0; height:1px; background:var(--w-50);
+    animation:growRule 1.1s ease forwards .3s;
+  }
+  @keyframes growRule{ to{ width:180px; } }
 
-    #mainContent {
-      width: 100%;
-      max-width: 1280px;
-      opacity: 0;
-      transition: opacity 1s ease;
-      transition-delay: 0.2s;
-    }
-    #mainContent.visible { opacity: 1; }
+  /* ── shell ───────────────────────────────── */
+  #mainContent{
+    opacity:0; transition:opacity .9s ease; transition-delay:.15s;
+    max-width:1180px; margin:0 auto;
+    padding:2.6rem 1.4rem 3rem;
+  }
+  #mainContent.visible{ opacity:1; }
 
-    /* HEADER - Logo di tengah, tanpa border putih */
-    .gov-header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-bottom: 2px solid rgba(255, 255, 255, 0.15);
-      padding: 0rem 0 0.6rem;
-      margin-bottom: 1.2rem;
-      flex-wrap: wrap;
-      gap: 0.3rem;
-    }
+  /* ── masthead ────────────────────────────── */
+  .masthead{
+    text-align:center;
+    padding-bottom:1.6rem;
+  }
+  .masthead .crest{
+    width:12px; height:12px; margin:0 auto .9rem;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .masthead .crest img{ height:40px; width:auto; }
+  .masthead .wordmark{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:500;
+    font-size:clamp(2rem, 6vw, 3.1rem);
+    letter-spacing:0.06em;
+    line-height:1.05;
+  }
+  .masthead .subline{
+    margin-top:.5rem;
+    font-style:italic;
+    font-size:.95rem;
+    color:var(--w-70);
+    letter-spacing:.03em;
+  }
+  .rule-double{
+    margin:1.5rem auto 0;
+    max-width:520px;
+    height:5px;
+    border-top:1px solid var(--w-30);
+    border-bottom:1px solid var(--w-15);
+  }
 
-    .header-logo {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
+  /* ── nav (button tiles) ──────────────────── */
+  nav.directory-nav{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:.9rem;
+    margin:1.9rem 0 2.8rem;
+  }
+  @media (max-width:640px){
+    nav.directory-nav{ grid-template-columns:repeat(2, 1fr); }
+  }
+  nav.directory-nav a{
+    color:var(--white);
+    text-decoration:none;
+    font-family:'Cormorant Garamond', serif;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:.55rem;
+    padding:1.3rem .8rem;
+    border:1px solid var(--w-30);
+    background:var(--w-08);
+    letter-spacing:.04em;
+    font-size:1rem;
+    text-align:center;
+    transition:background .18s ease, border-color .18s ease, transform .18s ease;
+  }
+  nav.directory-nav a svg{
+    width:22px; height:22px;
+    stroke:var(--white);
+    fill:none;
+    stroke-width:1.4;
+  }
+  nav.directory-nav a:hover{
+    background:var(--w-15);
+    border-color:var(--w-50);
+    transform:translateY(-2px);
+  }
+  nav.directory-nav a:active{ transform:translateY(0); }
 
-    .header-logo img {
-      height: 60px;
-      width: auto;
-      display: block;
-      margin-bottom: 0.1rem;
-    }
+  /* ── section heading ────────────────────── */
+  .section-head{
+    display:flex; align-items:baseline; justify-content:space-between;
+    flex-wrap:wrap; gap:.5rem;
+    border-bottom:1px solid var(--w-15);
+    padding-bottom:.6rem; margin-bottom:1.4rem;
+  }
+  .section-head h2{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:500;
+    font-size:1.5rem;
+    letter-spacing:.03em;
+  }
+  .section-head .count{
+    font-size:.8rem; font-style:italic; color:var(--w-50);
+  }
 
-    .header-logo .logo-text {
-      font-size: 1.3rem;
-      font-weight: 400;
-      letter-spacing: 0.15rem;
-      text-transform: uppercase;
-      color: white;
-      opacity: 0.9;
-    }
+  /* ── register grid ───────────────────────── */
+  .register{
+    display:grid; grid-template-columns:1fr;
+    gap:1.6rem;
+  }
+  @media (min-width:860px){
+    .register{ grid-template-columns:1.55fr 1fr; align-items:start; }
+  }
 
-    @media (max-width: 480px) {
-      .header-logo img {
-        height: 45px;
-      }
-      .header-logo .logo-text {
-        font-size: 1rem;
-        letter-spacing: 0.1rem;
-      }
-    }
+  .map-frame{
+    position:relative;
+    border:1px solid var(--w-30);
+    padding:6px;
+  }
+  .map-frame::before{
+    content:'';
+    position:absolute; inset:0;
+    border:1px solid var(--w-15);
+    margin:2px;
+    pointer-events:none;
+  }
+  .map-frame #map{
+    height:400px;
+    filter:sepia(.15) saturate(.6) hue-rotate(310deg) brightness(.85);
+  }
+  @media (max-width:480px){ .map-frame #map{ height:280px; } }
 
-    /* BUTTON GRID - 4 tombol */
-    .button-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.7rem;
-      margin: 0.5rem 0 1.2rem;
-    }
+  .map-caption{
+    text-align:center; font-size:.72rem; font-style:italic;
+    color:var(--w-50); margin-top:.5rem; letter-spacing:.03em;
+  }
 
-    @media (max-width: 400px) {
-      .button-grid {
-        gap: 0.5rem;
-      }
-    }
+  /* ── ledger list ─────────────────────────── */
+  .ledger{
+    border-top:1px solid var(--w-15);
+    max-height:460px; overflow-y:auto;
+  }
+  .ledger::-webkit-scrollbar{ width:3px; }
+  .ledger::-webkit-scrollbar-thumb{ background:var(--w-30); }
 
-    .nav-btn {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: white;
-      padding: 0.9rem 0.5rem;
-      text-align: center;
-      font-size: 0.95rem;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: 0.15s;
-      font-family: 'Times New Roman', serif;
-      letter-spacing: 0.05rem;
-      text-decoration: none;
-      display: block;
-      font-weight: 400;
-    }
+  .entry{
+    display:grid;
+    grid-template-columns:1.4rem 1fr;
+    gap:.7rem;
+    padding:.65rem 0;
+    border-bottom:1px solid var(--w-08);
+    cursor:pointer;
+    transition:background .15s ease, padding-left .15s ease;
+    align-items:start;
+  }
+  .entry:hover{ background:var(--w-08); }
+  .entry.active{
+    background:var(--w-08);
+    box-shadow: inset 3px 0 0 var(--white);
+    padding-left:.3rem;
+  }
+  .entry .mark{
+    padding-top:.2rem;
+  }
+  .entry .mark svg{
+    width:15px; height:15px;
+    stroke:var(--w-50);
+    fill:none;
+    stroke-width:1.4;
+  }
+  .entry.active .mark svg{ stroke:var(--white); }
+  .entry .name{
+    font-size:.92rem;
+    font-weight:600;
+    letter-spacing:.01em;
+  }
+  .entry .addr{
+    font-size:.76rem;
+    font-style:italic;
+    color:var(--w-70);
+    margin-top:.1rem;
+  }
 
-    .nav-btn:hover {
-      background: rgba(255, 255, 255, 0.12);
-      border-color: rgba(255, 255, 255, 0.35);
-    }
-
-    .nav-btn:active {
-      transform: scale(0.97);
-    }
-
-    @media (max-width: 480px) {
-      .nav-btn {
-        padding: 0.7rem 0.3rem;
-        font-size: 0.85rem;
-        border-radius: 6px;
-      }
-    }
-
-    /* MAP SECTION - Grid mobile */
-    .map-section {
-      margin-top: 0.8rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      padding-top: 1rem;
-    }
-
-    .map-container {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
-
-    @media (min-width: 768px) {
-      .map-container {
-        grid-template-columns: 2fr 1fr;
-        gap: 1.5rem;
-      }
-    }
-
-    .map-wrapper {
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background: #0d1f2d;
-      position: relative;
-      height: 320px;
-    }
-
-    @media (max-width: 480px) {
-      .map-wrapper {
-        height: 250px;
-      }
-    }
-
-    .map-wrapper #map {
-      width: 100%;
-      height: 100%;
-    }
-
-    .map-wrapper .map-label {
-      position: absolute;
-      bottom: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,0.6);
-      padding: 3px 12px;
-      border-radius: 16px;
-      font-size: 0.6rem;
-      letter-spacing: 0.06rem;
-      opacity: 0.4;
-      pointer-events: none;
-      z-index: 1000;
-      white-space: nowrap;
-    }
-
-    /* RESIDENCE LIST */
-    .residence-list {
-      background: rgba(255, 255, 255, 0.02);
-      border-radius: 12px;
-      padding: 0.8rem 1rem;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      max-height: 320px;
-      overflow-y: auto;
-    }
-
-    @media (max-width: 480px) {
-      .residence-list {
-        max-height: 250px;
-        padding: 0.6rem 0.8rem;
-      }
-    }
-
-    .residence-list::-webkit-scrollbar {
-      width: 3px;
-      background: rgba(255, 255, 255, 0.05);
-    }
-    .residence-list::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 4px;
-    }
-
-    .residence-item {
-      padding: 0.3rem 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-      font-size: 0.8rem;
-      line-height: 1.3;
-      display: flex;
-      gap: 0.4rem;
-      cursor: pointer;
-      transition: 0.15s;
-    }
-
-    @media (max-width: 480px) {
-      .residence-item {
-        font-size: 0.7rem;
-        padding: 0.25rem 0;
-      }
-    }
-
-    .residence-item:hover {
-      background: rgba(255, 255, 255, 0.05);
-      padding-left: 0.2rem;
-    }
-    .residence-item.active {
-      background: rgba(255, 215, 0, 0.08);
-      border-left: 2px solid #ffd700;
-      padding-left: 0.2rem;
-    }
-    .residence-item .marker-icon {
-      color: white;
-      opacity: 0.3;
-      font-size: 0.7rem;
-      margin-right: 0.1rem;
-      flex-shrink: 0;
-    }
-    .residence-item strong {
-      font-weight: 600;
-      letter-spacing: 0.02rem;
-    }
-    .residence-item .addr {
-      opacity: 0.55;
-      font-size: 0.7rem;
-      display: block;
-      margin-top: 0.02rem;
-    }
-
-    @media (max-width: 480px) {
-      .residence-item .addr {
-        font-size: 0.6rem;
-      }
-    }
-
-    .home-indicator {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      margin-bottom: 0.5rem;
-      font-size: 0.65rem;
-      opacity: 0.3;
-      letter-spacing: 0.04rem;
-    }
-
-    /* FOOTER */
-    .footer-note {
-      margin-top: 1.8rem;
-      font-size: 0.7rem;
-      opacity: 0.25;
-      letter-spacing: 0.05rem;
-      text-align: center;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      padding-top: 1rem;
-      width: 100%;
-    }
-
-    @media (max-width: 480px) {
-      .footer-note {
-        font-size: 0.6rem;
-        margin-top: 1.2rem;
-        padding-top: 0.8rem;
-      }
-    }
-
-    /* CUSTOM MARKER */
-    .custom-marker {
-      background: white;
-      border: 2px solid #461e29;
-      border-radius: 50% 50% 50% 0;
-      width: 18px;
-      height: 18px;
-      transform: rotate(-45deg);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    }
-    .custom-marker::after {
-      content: '';
-      position: absolute;
-      top: 4px;
-      left: 4px;
-      width: 6px;
-      height: 6px;
-      background: #461e29;
-      border-radius: 50%;
-      transform: rotate(45deg);
-    }
-  </style>
+  /* ── footer ──────────────────────────────── */
+  .colophon{
+    margin-top:3rem;
+    padding-top:1rem;
+    border-top:1px solid var(--w-15);
+    text-align:center;
+    font-size:.72rem;
+    font-style:italic;
+    letter-spacing:.04em;
+    color:var(--w-30);
+  }
+</style>
 </head>
 <body>
 
-<!-- Ganti ini di bagian HTML overlay -->
 <div id="fadeOverlay">
-  <div class="logo-big">
-    <img src="https://ontheg.github.io/G/GSTK/Logo.png" alt="GSTK" />
-  </div>
+  <div class="ring"><img src="https://ontheg.github.io/G/GSTK/Logo.png" alt="GSTK" /></div>
+  <div class="rule"></div>
 </div>
-  
-  <div id="mainContent">
 
-    <!-- HEADER: Logo di tengah, tanpa border putih -->
-    <header class="gov-header">
-      <div class="header-logo">
-        <img src="https://ontheg.github.io/G/GSTK/Logo.png" alt="GSTK Logo" />
-        <span class="logo-text">God Save The King</span>
-      </div>
-    </header>
+<div id="mainContent">
 
-    <!-- BUTTON GRID: 4 tombol -->
-    <div class="button-grid">
-      <a href="About.html" class="nav-btn">About us</a>
-      <a href="ID.html" class="nav-btn">ID Card</a>
-      <a href="GBP.html" class="nav-btn">GBP Bank</a>
-      <a href="CP.html" class="nav-btn">Contact us</a>
+  <header class="masthead">
+    <div class="crest"><img src="https://ontheg.github.io/G/GSTK/Logo.png" alt="GSTK crest" /></div>
+    <div class="wordmark">God Save The King</div>
+    <div class="rule-double"></div>
+  </header>
+
+  <nav class="directory-nav">
+    <a href="About.html">
+      <svg viewBox="0 0 24 24"><path d="M4 21V9l8-5 8 5v12"/><path d="M9 21v-7h6v7"/></svg>
+      About us
+    </a>
+    <a href="ID.html">
+      <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1"/><circle cx="8.5" cy="12" r="2"/><path d="M13 10.5h5M13 14h5"/></svg>
+      ID Card
+    </a>
+    <a href="GBP.html">
+      <svg viewBox="0 0 24 24"><path d="M12 3v18M8 7.5c0-1.9 1.8-3.2 4-3.2s4 1.3 4 3.2c0 3.6-8 3-8 7 0 2 2 3.4 4.5 3.4S17 16.6 17 15"/></svg>
+      GBP Bank
+    </a>
+    <a href="CP.html">
+      <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 6.5l9 6.5 9-6.5"/></svg>
+      Contact us
+    </a>
+  </nav>
+
+  <section>
+    <div class="section-head">
+      <h2>Register of Residences</h2>
     </div>
 
-    <!-- MAP SECTION -->
-    <section class="map-section">
-      <div style="display:flex;align-items:baseline;gap:1rem;margin-bottom:0.6rem;flex-wrap:wrap;">
-        <span style="font-size:1rem;font-weight:300;letter-spacing:0.04rem;">British Isles</span>
+    <div class="register">
+      <div>
+        <div class="map-frame"><div id="map"></div></div>
+        <div class="map-caption">Marked residences across England, Scotland &amp; Wales</div>
       </div>
 
-      <div class="map-container">
-        <div class="map-wrapper" id="mapWrapper">
-          <div id="map"></div>
-        </div>
-
-        <div class="residence-list" id="residenceList">
-          <div class="home-indicator">GSTK residences</div>
-          <div class="residence-item" data-id="16" onclick="zoomToLocation(16)"><span class="marker-icon">•</span><div><strong>Justice Goode</strong><span class="addr">New Eidyn, Edinburgh, EH1 3SS</span></div></div>
-          <div class="residence-item" data-id="14" onclick="zoomToLocation(14)"><span class="marker-icon">•</span><div><strong>Tanner A. Clarendon</strong><span class="addr">127 Westminster Ave, Sheffield S10 4ER</span></div></div>
-          <div class="residence-item" data-id="9" onclick="zoomToLocation(9)"><span class="marker-icon">•</span><div><strong>Frederick L. Rutherford</strong><span class="addr">Redington Road, Hampstead, London</span></div></div>
-          <div class="residence-item" data-id="0" onclick="zoomToLocation(0)"><span class="marker-icon">•</span><div><strong>Gathur D. Kafka</strong><span class="addr">The Kafka Family Estate, 3 Hampstead Lane, London</span></div></div>
-          <div class="residence-item" data-id="5" onclick="zoomToLocation(5)"><span class="marker-icon">•</span><div><strong>Catherine Sinclair</strong><span class="addr">6A Aubrey Road, Holland Park, London</span></div></div>
-          <div class="residence-item" data-id="6" onclick="zoomToLocation(6)"><span class="marker-icon">•</span><div><strong>Al P. Winterbourne</strong><span class="addr">45 Bedford Place, Bloomsbury, London</span></div></div>
-          <div class="residence-item" data-id="10" onclick="zoomToLocation(10)"><span class="marker-icon">•</span><div><strong>Laluna H. Satwika</strong><span class="addr">The Armitage, 218 Great Portland St, London</span></div></div>
-          <div class="residence-item" data-id="8" onclick="zoomToLocation(8)"><span class="marker-icon">•</span><div><strong>Ethan Kang</strong><span class="addr">1 Bollinder Place, London, EC1V 2AG</span></div></div>
-          <div class="residence-item" data-id="2" onclick="zoomToLocation(2)"><span class="marker-icon">•</span><div><strong>Bernadette M. Hsu</strong><span class="addr">Knightsbridge, London, SW1X 9PX</span></div></div>
-          <div class="residence-item" data-id="12" onclick="zoomToLocation(12)"><span class="marker-icon">•</span><div><strong>Noah R. Wilson</strong><span class="addr">24 Eaton Square, Belgravia, London</span></div></div>
-          <div class="residence-item" data-id="1" onclick="zoomToLocation(1)"><span class="marker-icon">•</span><div><strong>Alexandre A. Arenberg</strong><span class="addr">27 Boundary Road, London, E17 8NQ</span></div></div>
-          <div class="residence-item" data-id="7" onclick="zoomToLocation(7)"><span class="marker-icon">•</span><div><strong>Cordelia Marygold</strong><span class="addr">Colour House, 7 Bell Yard Mews, London</span></div></div>
-          <div class="residence-item" data-id="15" onclick="zoomToLocation(15)"><span class="marker-icon">•</span><div><strong>Wes V. Chrestien</strong><span class="addr">130 Elmbridge, London, AP6 5KP</span></div></div>
-          <div class="residence-item" data-id="13" onclick="zoomToLocation(13)"><span class="marker-icon">•</span><div><strong>Saoirse G. Hawthorre</strong><span class="addr">Drift Road, Windsor, Berkshire</span></div></div>
-          <div class="residence-item" data-id="11" onclick="zoomToLocation(11)"><span class="marker-icon">•</span><div><strong>Lareina T. Clarendon</strong><span class="addr">1A Mayfair Ave, Nailsea, Bristol</span></div></div>
-          <div class="residence-item" data-id="3" onclick="zoomToLocation(3)"><span class="marker-icon">•</span><div><strong>Blaise A. E. Seymour</strong><span class="addr">Batstone Close, Bath, Somerset</span></div></div>
-          <div class="residence-item" data-id="4" onclick="zoomToLocation(4)"><span class="marker-icon">•</span><div><strong>Blake A. l. Seymour</strong><span class="addr">Claremont Walk, Bath, Somerset</span></div></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- FOOTER -->
-    <div class="footer-note">
-      ©GSTK, 2026. For roleplay purpose only
+      <div class="ledger" id="ledgerList"></div>
     </div>
-  </div>
+  </section>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
-    // FADE LOGO
-    (function() {
-      const overlay = document.getElementById('fadeOverlay');
-      const main = document.getElementById('mainContent');
-      setTimeout(() => {
-        overlay.classList.add('fade-out');
-        main.classList.add('visible');
-        setTimeout(() => { overlay.style.display = 'none'; }, 1400);
-      }, 3200);
-    })();
+  <div class="colophon">©GSTK, 2026 — For roleplay purpose only</div>
+</div>
 
-    // DATA KOORDINAT LOKASI
-    const locationData = {
-      0: { lat: 51.5718, lon: -0.1744, name: 'The Kafka Family Estate' },
-      1: { lat: 51.5770, lon: -0.0140, name: 'Alexandre A. Arenberg' },
-      2: { lat: 51.5015, lon: -0.1600, name: 'Bernadette M. Hsu' },
-      3: { lat: 51.3810, lon: -2.3590, name: 'Blaise A. E. Seymour' },
-      4: { lat: 51.3830, lon: -2.3570, name: 'Blake A. l. Seymour' },
-      5: { lat: 51.5025, lon: -0.2050, name: 'Catherine Sinclair' },
-      6: { lat: 51.5190, lon: -0.1260, name: 'Al P. Winterbourne' },
-      7: { lat: 51.5060, lon: -0.0850, name: 'Cordelia Marygold' },
-      8: { lat: 51.5250, lon: -0.0990, name: 'Ethan Kang' },
-      9: { lat: 51.5580, lon: -0.1760, name: 'Frederick L. Rutherford' },
-      10: { lat: 51.5200, lon: -0.1450, name: 'Laluna H. Satwika' },
-      11: { lat: 51.4420, lon: -2.7590, name: 'Lareina T. Clarendon' },
-      12: { lat: 51.4980, lon: -0.1550, name: 'Noah R. Wilson' },
-      13: { lat: 51.4790, lon: -0.6300, name: 'Saoirse G. Hawthorre' },
-      14: { lat: 53.3811, lon: -1.4700, name: 'Tanner A. Clarendon' },
-      15: { lat: 51.5500, lon: 0.0500, name: 'Wes V. Chrestien' },
-      16: { lat: 55.9533, lon: -3.1883, name: 'Justice Goode' }
-    };
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  (function(){
+    const overlay = document.getElementById('fadeOverlay');
+    const main = document.getElementById('mainContent');
+    setTimeout(() => {
+      overlay.classList.add('fade-out');
+      main.classList.add('visible');
+      setTimeout(() => { overlay.style.display = 'none'; }, 1100);
+    }, 2600);
+  })();
 
-    // ====== INISIALISASI MAP ======
-    const map = L.map('map').setView([54.0, -3.0], 6);
+  const locationData = {
+    0:{lat:51.5718,lon:-0.1744,name:'Gathur D. Kafka',addr:'The Kafka Family Estate, 3 Hampstead Lane, London'},
+    1:{lat:51.5770,lon:-0.0140,name:'Alexandre A. Arenberg',addr:'27 Boundary Road, London, E17 8NQ'},
+    2:{lat:51.5015,lon:-0.1600,name:'Bernadette M. Hsu',addr:'Knightsbridge, London, SW1X 9PX'},
+    3:{lat:51.3810,lon:-2.3590,name:'Blaise A. E. Seymour',addr:'Batstone Close, Bath, Somerset'},
+    4:{lat:51.3830,lon:-2.3570,name:'Blake A. l. Seymour',addr:'Claremont Walk, Bath, Somerset'},
+    5:{lat:51.5025,lon:-0.2050,name:'Catherine Sinclair',addr:'6A Aubrey Road, Holland Park, London'},
+    6:{lat:51.5190,lon:-0.1260,name:'Al P. Winterbourne',addr:'45 Bedford Place, Bloomsbury, London'},
+    7:{lat:51.5060,lon:-0.0850,name:'Cordelia Marygold',addr:'Colour House, 7 Bell Yard Mews, London'},
+    8:{lat:51.5250,lon:-0.0990,name:'Ethan Kang',addr:'1 Bollinder Place, London, EC1V 2AG'},
+    9:{lat:51.5580,lon:-0.1760,name:'Frederick L. Rutherford',addr:'Redington Road, Hampstead, London'},
+    10:{lat:51.5200,lon:-0.1450,name:'Laluna H. Satwika',addr:'The Armitage, 218 Great Portland St, London'},
+    11:{lat:51.4420,lon:-2.7590,name:'Lareina T. Clarendon',addr:'1A Mayfair Ave, Nailsea, Bristol'},
+    12:{lat:51.4980,lon:-0.1550,name:'Noah R. Wilson',addr:'24 Eaton Square, Belgravia, London'},
+    13:{lat:51.4790,lon:-0.6300,name:'Saoirse G. Hawthorre',addr:'Drift Road, Windsor, Berkshire'},
+    14:{lat:53.3811,lon:-1.4700,name:'Tanner A. Clarendon',addr:'127 Westminster Ave, Sheffield S10 4ER'},
+    15:{lat:51.5500,lon:0.0500,name:'Wes V. Chrestien',addr:'130 Elmbridge, London, AP6 5KP'},
+    16:{lat:55.9533,lon:-3.1883,name:'Justice Goode',addr:'New Eidyn, Edinburgh, EH1 3SS'}
+  };
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
-      maxZoom: 19
-    }).addTo(map);
+  // build ledger rows (sorted by name), each marked with a location pin icon instead of a number
+  const ledger = document.getElementById('ledgerList');
+  const pinSVG = `<svg viewBox="0 0 24 24"><path d="M12 21s-6.5-6.1-6.5-11A6.5 6.5 0 0 1 12 3.5 6.5 6.5 0 0 1 18.5 10c0 4.9-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.2"/></svg>`;
+  const ids = Object.keys(locationData).sort((a,b) => locationData[a].name.localeCompare(locationData[b].name));
+  ids.forEach((id) => {
+    const d = locationData[id];
+    const row = document.createElement('div');
+    row.className = 'entry';
+    row.dataset.id = id;
+    row.onclick = () => zoomToLocation(id);
+    row.innerHTML = `<span class="mark">${pinSVG}</span>
+      <div><div class="name">${d.name}</div><div class="addr">${d.addr}</div></div>`;
+    ledger.appendChild(row);
+  });
 
-    const markers = {};
+  const map = L.map('map', { zoomControl: true }).setView([54.0, -3.0], 6);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors',
+    maxZoom: 19
+  }).addTo(map);
 
-    Object.keys(locationData).forEach(id => {
-      const data = locationData[id];
-      
-      const icon = L.divIcon({
-        className: 'custom-marker',
-        iconSize: [18, 18],
-        iconAnchor: [9, 18],
-        popupAnchor: [0, -18]
-      });
+  const markerIcon = L.divIcon({
+    className: '',
+    html: `<div style="width:14px;height:14px;background:#fff;border:2px solid #461e29;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 1px 4px rgba(0,0,0,.35)"></div>`,
+    iconSize: [14,14],
+    iconAnchor: [7,14],
+    popupAnchor: [0,-14]
+  });
 
-      const marker = L.marker([data.lat, data.lon], { icon: icon })
-        .bindPopup(`<b>${data.name}</b>`)
-        .addTo(map);
-      
-      markers[id] = marker;
-    });
+  const markers = {};
+  Object.keys(locationData).forEach(id => {
+    const d = locationData[id];
+    markers[id] = L.marker([d.lat, d.lon], { icon: markerIcon })
+      .bindPopup(`<b>${d.name}</b>`)
+      .addTo(map);
+  });
 
-    // ZOOM KE LOKASI
-    function zoomToLocation(id) {
-      const data = locationData[id];
-      if (!data) return;
-
-      document.querySelectorAll('.residence-item').forEach(el => el.classList.remove('active'));
-      const item = document.querySelector(`.residence-item[data-id="${id}"]`);
-      if (item) item.classList.add('active');
-
-      map.setView([data.lat, data.lon], 16, {
-        animate: true,
-        duration: 0.8
-      });
-
-      setTimeout(() => {
-        map.panTo([data.lat, data.lon]);
-      }, 850);
-
-      if (markers[id]) {
-        setTimeout(() => {
-          markers[id].openPopup();
-        }, 400);
-      }
-
-      document.getElementById('mapWrapper').scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  </script>
+  function zoomToLocation(id){
+    const d = locationData[id];
+    if(!d) return;
+    document.querySelectorAll('.entry').forEach(el => el.classList.remove('active'));
+    const row = document.querySelector(`.entry[data-id="${id}"]`);
+    if(row) row.classList.add('active');
+    map.setView([d.lat, d.lon], 15, { animate:true, duration:.8 });
+    setTimeout(() => { if(markers[id]) markers[id].openPopup(); }, 400);
+    document.querySelector('.map-frame').scrollIntoView({ behavior:'smooth', block:'center' });
+  }
+</script>
 </body>
-            </html>
+</html>
